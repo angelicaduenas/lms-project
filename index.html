@@ -615,6 +615,10 @@ select.inp{cursor:pointer;appearance:none;background-image:url("data:image/svg+x
           onkeydown="if(event.key==='Enter')globalSearch(this.value)"
         />
       </div>
+      <select style="font-size:10px;padding:3px 8px;border-radius:var(--r6);border:1px solid var(--b);background:var(--s1);color:var(--ts);cursor:pointer;font-family:inherit" title="Switch environment" onchange="showEnvToast(this.value)">
+        <option>🏨 Mews University</option>
+        <option>👩‍💼 Mewsers</option>
+      </select>
       <button class="tbx" onclick="toggleDark()" title="Toggle dark mode" id="dark-btn">
         <i class="ti ti-moon"></i>
       </button>
@@ -633,10 +637,7 @@ select.inp{cursor:pointer;appearance:none;background-image:url("data:image/svg+x
 </div>
 
 <!-- DRAFT BADGE -->
-<div class="draft-badge">
-  <i class="ti ti-flask" style="font-size:11px"></i>
-  Draft v0.1
-</div>
+<a href="https://mews.atlassian.net/wiki/spaces/PKA/pages/2557116720" target="_blank" class="draft-badge" style="text-decoration:none"><i class="ti ti-flask" style="font-size:11px"></i> Draft v0.1 · docs ↗</a>
 
 <script>
 /* ═══════════════════════════════════════
@@ -1412,7 +1413,7 @@ function buildPlayer(c){
       <div style="display:flex;gap:6px;align-items:center">
         <button class="btn btn-s btn-sm"><i class="ti ti-note"></i> Notes</button>
         <button class="btn btn-s btn-sm"><i class="ti ti-message"></i> Discuss</button>
-        <button class="btn btn-p btn-sm" id="complete-btn" onclick="markComplete()"><i class="ti ti-check"></i> Mark complete</button>
+        <button class="btn btn-p btn-sm" id="complete-btn" onclick="markComplete();setTimeout(()=>showXPCelebration(50,'Front Office Pro 🏅'),1200)"><i class="ti ti-check"></i> Mark complete</button>
       </div>
     </div>
   </div>
@@ -2128,7 +2129,7 @@ function buildHelp(c){
       <i class="ti ti-search"></i>
       <input placeholder="Search help articles and FAQs…" oninput="filterFAQ(this.value)"/>
     </div>
-    <button class="btn btn-s btn-sm"><i class="ti ti-external-link"></i> Confluence docs</button>
+    <a href="https://mews.atlassian.net/wiki/spaces/PKA/pages/2557116720" target="_blank" class="btn btn-s btn-sm"><i class="ti ti-external-link"></i> Prototype docs ↗</a>
   </div>
   <div class="scr pad">
     <div class="lbl">GETTING STARTED</div>
@@ -2196,6 +2197,29 @@ function filterFAQ(v){
 /* ══════════════════════════════
    BOOT
 ══════════════════════════════ */
+function showEnvToast(env){
+  let t=document.getElementById('env-toast');
+  if(!t){t=document.createElement('div');t.id='env-toast';t.style.cssText='position:fixed;bottom:60px;left:50%;transform:translateX(-50%);background:var(--tp);color:var(--s2);font-size:11px;font-weight:500;padding:8px 16px;border-radius:var(--rfull);z-index:9999;box-shadow:var(--sh2);transition:opacity .3s';document.body.appendChild(t);}
+  t.textContent='Switched to '+env;t.style.opacity='1';
+  setTimeout(()=>{t.style.opacity='0';},2000);
+}
+
+function showXPCelebration(xp,badge){
+  const overlay=document.createElement('div');
+  overlay.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9998;display:flex;align-items:center;justify-content:center;animation:fadeIn .3s';
+  overlay.innerHTML=`<div style="background:var(--s2);border-radius:var(--r16);padding:32px 40px;text-align:center;max-width:320px;box-shadow:var(--sh3)">
+    <div style="font-size:48px;margin-bottom:12px">${badge?'🏆':'⭐'}</div>
+    <div style="font-size:20px;font-weight:700;color:var(--tp);margin-bottom:6px">${badge?'Badge unlocked!':'Module complete!'}</div>
+    ${badge?`<div style="font-size:14px;color:var(--tpro);font-weight:500;margin-bottom:8px">${badge}</div>`:''}
+    <div style="font-size:28px;font-weight:700;color:var(--ta);margin-bottom:16px">+${xp} XP</div>
+    <div style="font-size:12px;color:var(--ts);margin-bottom:20px">Level 4 · 1,${240+xp} XP total</div>
+    <button class="btn btn-p" style="width:100%;justify-content:center;font-size:12px" onclick="this.closest('div[style*=position]').remove()">Continue →</button>
+  </div>`;
+  document.body.appendChild(overlay);
+  setTimeout(()=>overlay.style.opacity='0',4000);
+  setTimeout(()=>{if(overlay.parentNode)overlay.remove();},4500);
+}
+
 function boot(){
   // Show notification badges
   el('notif-badge').style.display=S.notifCount>0?'block':'none';
