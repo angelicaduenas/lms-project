@@ -49,7 +49,7 @@
 
 /* ── BASE ── */
 html,body{height:100%}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;font-size:13px;line-height:1.5;color:var(--tp);background:var(--bg);display:flex;align-items:center;justify-content:center;min-height:100vh;padding:16px}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;font-size:13px;line-height:1.5;color:var(--tp);background:var(--bg);display:flex;align-items:center;justify-content:center;min-height:100vh;padding:16px;transition:background .2s}
 ::-webkit-scrollbar{width:4px;height:4px}
 ::-webkit-scrollbar-track{background:transparent}
 ::-webkit-scrollbar-thumb{background:var(--bs);border-radius:4px}
@@ -60,6 +60,7 @@ a{color:var(--ta);text-decoration:none}
 a:hover{text-decoration:underline}
 
 /* ── SHELL ── */
+.cc-thumb::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.3),rgba(255,255,255,0));pointer-events:none}
 .shell{
   display:flex;
   width:100%;max-width:1024px;
@@ -383,7 +384,7 @@ select.inp{cursor:pointer;appearance:none;background-image:url("data:image/svg+x
 /* course cards */
 .cc{background:var(--s2);border:1px solid var(--b);border-radius:var(--r12);overflow:hidden;cursor:pointer;transition:var(--tr);display:flex;flex-direction:column}
 .cc:hover{border-color:var(--bra);transform:translateY(-2px);box-shadow:var(--sh2)}
-.cc-thumb{height:72px;display:flex;align-items:center;justify-content:center;font-size:26px;position:relative;flex-shrink:0}
+.cc-thumb{height:72px;display:flex;align-items:center;justify-content:center;font-size:26px;position:relative;flex-shrink:0;overflow:hidden}
 .cc-body{padding:10px 12px 12px;flex:1;display:flex;flex-direction:column}
 .cc-tag{font-size:8px;font-weight:600;letter-spacing:.6px;color:var(--ta);margin-bottom:2px;text-transform:uppercase}
 .cc-ttl{font-size:11px;font-weight:500;color:var(--tp);margin-bottom:3px;line-height:1.4}
@@ -409,6 +410,8 @@ select.inp{cursor:pointer;appearance:none;background-image:url("data:image/svg+x
 .play-big:hover{background:rgba(255,255,255,.25);transform:scale(1.05)}
 .ctrl-bar{background:#0d1117;padding:9px 14px;display:flex;align-items:center;gap:8px;flex-shrink:0;border-top:1px solid rgba(255,255,255,.05)}
 .ctrl-b{background:none;border:none;cursor:pointer;color:#64748b;display:flex;align-items:center;padding:4px;border-radius:var(--r4);transition:color .15s}
+.ptab{background:none;border:none;cursor:pointer;font-size:10px;font-weight:500;padding:8px 12px;color:var(--ts);border-bottom:2px solid transparent;transition:all .15s;font-family:inherit;white-space:nowrap}
+.ptab:hover{color:var(--tp)}.ptab-on{color:var(--ta);border-bottom-color:var(--fa)}
 .ctrl-b:hover{color:#94a3b8}
 .ctrl-b i{font-size:17px}
 .seek{flex:1;height:3px;background:rgba(255,255,255,.15);border-radius:2px;cursor:pointer;position:relative}
@@ -525,7 +528,8 @@ select.inp{cursor:pointer;appearance:none;background-image:url("data:image/svg+x
 
 /* responsive note */
 @media(max-width:900px){
-  .shell{height:100vh;border-radius:0;border:none}
+  .cc-thumb::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.3),rgba(255,255,255,0));pointer-events:none}
+.shell{height:100vh;border-radius:0;border:none}
   .g4{grid-template-columns:repeat(2,1fr)}
 }
 </style>
@@ -579,6 +583,10 @@ select.inp{cursor:pointer;appearance:none;background-image:url("data:image/svg+x
     <button class="snb" id="sn-live" onclick="nav('live')" aria-label="Live Sessions">
       <i class="ti ti-video"></i>
       <span class="sn-tooltip">Live Sessions</span>
+    </button>
+    <button class="snb" id="sn-community" onclick="nav('community')" aria-label="Community">
+      <i class="ti ti-users-group"></i>
+      <span class="sn-tooltip">Community</span>
     </button>
     <button class="snb" id="sn-notif" onclick="nav('notif')" aria-label="Notifications">
       <i class="ti ti-bell"></i>
@@ -715,13 +723,14 @@ function lpc(e,bg,t,s,p,onClick=''){
 
 /* ── NAVIGATION ── */
 const TITLES = {
+  settings:'My profile & settings', manager:'Manager view', login:'Sign in', status:'Platform status', community:'Community',
   dash:'Dashboard', catalog:'Course Catalog', playlist:'Mewsic Playlist',
   player:'Course Player', mylearn:'My Learning', gamif:'Achievements',
   lb:'Leaderboard', live:'Live Sessions', notif:'Notifications',
   admin:'Admin', help:'Help & FAQ'
 };
 function nav(id){
-  const B={dash:buildDash,catalog:buildCatalog,playlist:buildPlaylist,player:buildPlayer,mylearn:buildMylearn,gamif:buildGamif,lb:buildLB,live:buildLive,notif:buildNotif,admin:buildAdmin,help:buildHelp};
+  const B={dash:buildDash,catalog:buildCatalog,playlist:buildPlaylist,player:buildPlayer,mylearn:buildMylearn,gamif:buildGamif,lb:buildLB,live:buildLive,notif:buildNotif,admin:buildAdmin,help:buildHelp,settings:buildSettings,manager:buildManager,login:buildLogin,status:buildStatus,community:buildCommunity};
   if(!B[id])return;
   S.screen=id;
   qsa('.snb').forEach(b=>b.classList.remove('on'));
@@ -782,10 +791,10 @@ const MODULES = [
   {n:1,t:'Welcome & course overview',done:true,type:'video',dur:'2:15'},
   {n:2,t:'Understanding the Mews timeline',done:true,type:'scorm',dur:'8:30'},
   {n:3,t:'Creating a new reservation',done:false,act:true,type:'scorm',dur:'12:00'},
-  {n:4,t:'Rate plans & pricing logic',done:false,type:'scorm',dur:'9:45'},
-  {n:5,t:'Managing group bookings',done:false,type:'scorm',dur:'11:20'},
-  {n:6,t:'Check-in & check-out flow',done:false,type:'video',dur:'6:50'},
-  {n:7,t:'Final assessment (12 questions)',done:false,type:'quiz',dur:'~15 min'},
+  {n:4,t:'Rate plans & pricing logic',done:false,type:'scorm',dur:'9:45',locked:true},
+  {n:5,t:'Managing group bookings',done:false,type:'scorm',dur:'11:20',locked:true},
+  {n:6,t:'Check-in & check-out flow',done:false,type:'video',dur:'6:50',locked:true},
+  {n:7,t:'Final assessment (12 questions)',done:false,type:'quiz',dur:'~15 min',locked:true},
 ];
 
 const PLAYLIST_TRACKS = [
@@ -948,10 +957,11 @@ function buildDash(c){
         ${buildTimerWidget()}
         ${buildPulseWidget()}
         ${buildTipWidget()}
+        ${buildSpacedRepWidget()}
       </div>
       <div class="wpbody" id="wp-manage" style="display:none">
         <div style="font-size:9px;color:var(--tm);margin-bottom:8px;line-height:1.6">Toggle widgets on/off. Changes save automatically.</div>
-        ${wrow('🤖','rgba(255,131,218,.15)','Mewsy','AI learning assistant',true)}
+        ${wrow('🤖','rgba(255,131,218,.15)','Help','AI learning assistant',true)}
         ${wrow('🔥','#FFF8E1','Streak & XP','Daily streak + XP ring',true)}
         ${wrow('⚡','var(--ba)','Quick Quiz','AI micro-assessment',true)}
         ${wrow('⏱️','#FFEEF8','Focus Timer','Pomodoro + xAPI logging',true)}
@@ -999,7 +1009,7 @@ function toggleWidget(id){
 }
 
 function buildMewsyWidget(){
-  return wacc('mewsy','🤖','rgba(255,131,218,.15)','Mewsy',`
+  return wacc('mewsy','🤖','rgba(255,131,218,.15)','Help',`
     <div class="wacc-inner">
       <div class="chat" id="mewsy-chat" style="max-height:110px;overflow-y:auto;margin-bottom:6px">
         <div class="cb bot"><div class="bub">Hi Angelica! Ask about courses, progress, or publishing from Evolve.</div></div>
@@ -1008,7 +1018,7 @@ function buildMewsyWidget(){
         ${['What next?','My progress','Badges','Certificates'].map(q=>`<button style="font-size:8px;padding:2px 7px;border-radius:var(--rfull);border:1px solid var(--b);background:var(--s1);color:var(--ts);cursor:pointer;transition:var(--tr)" onmouseover="this.style.background='var(--ba)';this.style.borderColor='var(--fa)'" onmouseout="this.style.background='var(--s1)';this.style.borderColor='var(--b)'" onclick="mewsyChat('${q}')">${q}</button>`).join('')}
       </div>
       <div class="minp">
-        <input class="minp-i" id="mewsy-inp" placeholder="Ask Mewsy…" onkeydown="if(event.key==='Enter')mewsySend()"/>
+        <input class="minp-i" id="mewsy-inp" placeholder="Ask the assistant…" onkeydown="if(event.key==='Enter')mewsySend()"/>
         <button class="minp-btn" onclick="mewsySend()"><i class="ti ti-send" style="font-size:11px"></i></button>
       </div>
     </div>
@@ -1257,7 +1267,7 @@ function buildCatalog(c){
   c.innerHTML = `
   <div class="banner banner-info" style="background:var(--ba)">
     <i class="ti ti-sparkles" style="color:var(--ta)"></i>
-    <span><strong>Mewsy suggests:</strong> Resume Reservations & Availability (72%) — fastest path to your Front Office Pro badge.</span>
+    <span><strong>Help suggests:</strong> Resume Reservations & Availability (72%) — fastest path to your Front Office Pro badge.</span>
   </div>
   <div class="chips">
     ${[['all','All courses'],['resume','In progress'],['new','New'],['ai','AI tools'],['trending','Trending']].map(([f,l])=>`<button class="chip${S.catFilter===f?' on':''}" onclick="setCatFilter('${f}',this)">${l}</button>`).join('')}
@@ -1345,7 +1355,7 @@ function buildPlaylist(c){
   <div class="tabrow">
     <button class="tab on">Focus playlists</button>
     <button class="tab">My saved</button>
-    <button class="tab">Mewsy picks</button>
+    <button class="tab">Recommended</button>
     <button class="tab">Recordings</button>
   </div>
   <div class="scr">
@@ -1404,16 +1414,22 @@ function buildPlayer(c){
       <button class="ctrl-b" title="Fullscreen"><i class="ti ti-maximize"></i></button>
     </div>
 
-    <!-- Info bar -->
-    <div style="background:var(--s2);border-top:1px solid var(--b);padding:8px 14px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;gap:10px">
-      <div>
-        <div style="font-size:11px;font-weight:500;color:var(--tp)">Reservations & Availability</div>
-        <div style="font-size:10px;color:var(--ts)">Front Office Essentials LP · Module 3 of 7</div>
+    <!-- Tabs: Content / Notes / Discuss / Transcript -->
+    <div style="background:var(--s2);border-top:1px solid var(--b);flex-shrink:0">
+      <div style="display:flex;align-items:center;padding:0 14px;border-bottom:1px solid var(--b)">
+        <div style="display:flex;gap:0" id="player-tabs">
+          <button class="ptab ptab-on" onclick="switchPlayerTab(0)">Content</button>
+          <button class="ptab" onclick="switchPlayerTab(1)">Notes</button>
+          <button class="ptab" onclick="switchPlayerTab(2)">Discuss</button>
+          <button class="ptab" onclick="switchPlayerTab(3)">Transcript</button>
+        </div>
+        <div style="margin-left:auto;display:flex;gap:6px;align-items:center">
+          <button class="btn btn-p btn-sm" id="complete-btn" onclick="markComplete();setTimeout(()=>showXPCelebration(50,'Front Office Pro 🏅'),1200)"><i class="ti ti-check"></i> Mark complete</button>
+        </div>
       </div>
-      <div style="display:flex;gap:6px;align-items:center">
-        <button class="btn btn-s btn-sm"><i class="ti ti-note"></i> Notes</button>
-        <button class="btn btn-s btn-sm"><i class="ti ti-message"></i> Discuss</button>
-        <button class="btn btn-p btn-sm" id="complete-btn" onclick="markComplete();setTimeout(()=>showXPCelebration(50,'Front Office Pro 🏅'),1200)"><i class="ti ti-check"></i> Mark complete</button>
+      <div id="player-tab-content" style="padding:10px 14px;font-size:11px;color:var(--ts);min-height:46px;display:flex;align-items:center;justify-content:space-between">
+        <span><strong style="color:var(--tp)">Reservations &amp; Availability</strong> &middot; Front Office Essentials LP &middot; Module 3 of 7</span>
+        <div style="display:flex;gap:5px"><span class="pill p-a">SCORM 1.2</span><span class="pill p-gray">22 min</span></div>
       </div>
     </div>
   </div>
@@ -1427,14 +1443,15 @@ function buildPlayer(c){
     <div style="flex:1;overflow-y:auto">
       ${MODULES.map(m=>{
         const ic={video:'ti-player-play',scorm:'ti-book',quiz:'ti-list-check'}[m.type];
-        return `<div class="mod-r${m.act?' act':''}">
-          <span class="mod-n">${m.n}</span>
-          <i class="ti ${ic} mod-ic"></i>
+        const locked=m.locked&&!m.done&&!m.act;
+        return `<div class="mod-r${m.act?' act':''}${locked?' mod-locked':''}" style="${locked?'opacity:.45;cursor:not-allowed;':''}">
+          <span class="mod-n" style="${locked?'color:var(--tm)':''}">${m.n}</span>
+          <i class="ti ${locked?'ti-lock':ic} mod-ic" style="${locked?'color:var(--tm)':''}"></i>
           <div style="flex:1;min-width:0">
-            <div class="mod-t">${m.t}</div>
-            <div style="font-size:9px;color:var(--tm)">${m.dur}</div>
+            <div class="mod-t" style="${locked?'color:var(--ts)':''}">${m.t}</div>
+            <div style="font-size:9px;color:var(--tm)">${locked?'Complete module '+(m.n-1)+' first':m.dur}</div>
           </div>
-          <div class="chk${m.done?' ok':''}">${m.done?'<i class="ti ti-check"></i>':''}</div>
+          ${locked?'<i class="ti ti-lock" style="font-size:10px;color:var(--th)"></i>':'<div class="chk'+( m.done?' ok':'')+'">'+(m.done?'<i class="ti ti-check"></i>':'')+'</div>'}
         </div>`;
       }).join('')}
     </div>
@@ -1465,7 +1482,25 @@ function togglePlayer(){
   }else clearInterval(S.playerInt);
 }
 function seekPlayer(e){const r=e.currentTarget.getBoundingClientRect();S.playerProg=clamp((e.clientX-r.left)/r.width*100,0,100);const sf=el('seek-fill'),st=el('seek-thumb'),pt=el('p-time');if(sf)sf.style.width=S.playerProg+'%';if(st)st.style.left=S.playerProg+'%';if(pt)pt.textContent=getPlayerTime();}
-function markComplete(){const btn=el('complete-btn');if(btn){btn.innerHTML='<i class="ti ti-check"></i> Completed ✓';btn.style.background='var(--fs)';btn.disabled=true;}}
+function markComplete(){
+  const btn=el('complete-btn');if(btn){btn.innerHTML='<i class="ti ti-check"></i> Completed ✓';btn.style.background='var(--fs)';btn.disabled=true;}
+  // E-signature modal for compliance courses
+  setTimeout(()=>{
+    const overlay=document.createElement('div');
+    overlay.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9995;display:flex;align-items:center;justify-content:center';
+    overlay.innerHTML=`<div style="background:var(--s2);border-radius:var(--r16);padding:28px 32px;max-width:360px;width:90%;box-shadow:var(--sh3)">
+      <div style="font-size:20px;margin-bottom:10px">✍️</div>
+      <div style="font-size:14px;font-weight:600;color:var(--tp);margin-bottom:6px">Acknowledge completion</div>
+      <div style="font-size:11px;color:var(--ts);line-height:1.6;margin-bottom:16px">I confirm I have completed <strong>Module 3 — Creating a new reservation</strong> and understand the content.</div>
+      <div class="fgrp"><label>DIGITAL SIGNATURE</label><input class="inp" placeholder="Type your full name to sign" id="esig-inp"/></div>
+      <div style="display:flex;gap:8px;margin-top:14px">
+        <button class="btn btn-s" style="flex:1" onclick="this.closest('div[style*=position]').remove()">Cancel</button>
+        <button class="btn btn-p" style="flex:2" onclick="const v=el('esig-inp').value.trim();if(!v){el('esig-inp').style.borderColor='var(--fd)';return;}this.closest('div[style*=position]').remove();">Sign &amp; confirm</button>
+      </div>
+    </div>`;
+    document.body.appendChild(overlay);
+  },400);
+}
 </script>
 <script>
 /* ══════════════════════════════
@@ -1729,7 +1764,7 @@ function buildLB(c){
           <span style="font-size:10px;font-weight:${isMe?'600':'400'};color:${isMe?'var(--ta)':'var(--ts)'}">${xp.toLocaleString()} XP</span>
         </div>`).join('')}
       <div style="margin-top:14px;padding:12px;background:var(--ba);border:1px solid var(--bra);border-radius:var(--r10);font-size:11px;color:var(--tp);line-height:1.7">
-        <strong>✦ Mewsy tip:</strong> Complete 2 more courses this week to overtake Priya Kumar and reach <strong style="color:var(--ta)">#4</strong>. You need 370 more XP. Payments & Billing alone gets you +150 XP.
+        <strong>✦ Tip:</strong> Complete 2 more courses this week to overtake Priya Kumar and reach <strong style="color:var(--ta)">#4</strong>. You need 370 more XP. Payments & Billing alone gets you +150 XP.
       </div>
     </div>
   </div>`;
@@ -1840,11 +1875,19 @@ function buildAdmin(c){
     <button class="asnl on" id="al-reports" onclick="setAdminSection('reports')"><i class="ti ti-chart-bar"></i>Reports</button>
     <button class="asnl" id="al-risk" onclick="setAdminSection('risk')"><i class="ti ti-alert-triangle"></i>At-risk</button>
     <button class="asnl" id="al-audit" onclick="setAdminSection('audit')"><i class="ti ti-list"></i>Audit log</button>
+    <button class="asnl" id="al-gradebook" onclick="setAdminSection('gradebook')"><i class="ti ti-table"></i>Gradebook</button>
+    <button class="asnl" id="al-messaging" onclick="setAdminSection('messaging')"><i class="ti ti-message-2"></i>Messaging</button>
+    <div class="asn-s">Team</div>
+    <button class="asnl" id="al-manager-view" onclick="go('manager')"><i class="ti ti-users-group"></i>Manager view</button>
     <div class="asn-s">System</div>
     <button class="asnl" id="al-api" onclick="setAdminSection('api')"><i class="ti ti-plug"></i>API & webhooks</button>
     <button class="asnl" id="al-lrs" onclick="setAdminSection('lrs')"><i class="ti ti-database"></i>LRS / xAPI</button>
     <button class="asnl" id="al-gdpr" onclick="setAdminSection('gdpr')"><i class="ti ti-shield"></i>GDPR</button>
     <button class="asnl" id="al-ntpl" onclick="setAdminSection('ntpl')"><i class="ti ti-bell"></i>Notifications</button>
+    <button class="asnl" id="al-obs" onclick="setAdminSection('obs')"><i class="ti ti-clipboard-check"></i>Obs. checklists</button>
+    <div class="asn-s">Strategy</div>
+    <button class="asnl" id="al-roi" onclick="setAdminSection('roi')"><i class="ti ti-trending-up"></i>Learning ROI</button>
+    <button class="asnl" id="al-branding" onclick="setAdminSection('branding')"><i class="ti ti-palette"></i>Branding</button>
   </nav>
   <div class="scr" style="flex:1;padding:14px;min-width:0" id="admin-content"></div>`;
   renderAdmin(S.adminSection);
@@ -2154,7 +2197,20 @@ function buildHelp(c){
         </div>`).join('')}
     </div>
 
-    <div class="lbl" style="margin-top:18px">CONTACT & SUPPORT</div>
+    <div class="lbl" style="margin-top:18px">PLATFORM</div>
+    <div class="g2" style="margin-bottom:12px">
+      <div class="card card-p card-hover" onclick="nav('status')">
+        <i class="ti ti-heartbeat" style="font-size:22px;color:var(--fs);display:block;margin-bottom:7px"></i>
+        <div style="font-size:12px;font-weight:500;color:var(--tp);margin-bottom:2px">System status</div>
+        <div style="font-size:10px;color:var(--tsg)">All systems operational</div>
+      </div>
+      <div class="card card-p card-hover" onclick="nav('login')">
+        <i class="ti ti-logout" style="font-size:22px;color:var(--ta);display:block;margin-bottom:7px"></i>
+        <div style="font-size:12px;font-weight:500;color:var(--tp);margin-bottom:2px">Sign out</div>
+        <div style="font-size:10px;color:var(--ts)">View login screen</div>
+      </div>
+    </div>
+    <div class="lbl">CONTACT & SUPPORT</div>
     <div class="g2" style="margin-bottom:12px">
       <div class="card card-p card-hover">
         <i class="ti ti-brand-slack" style="font-size:22px;color:#4a154b;display:block;margin-bottom:7px"></i>
@@ -2169,7 +2225,7 @@ function buildHelp(c){
     </div>
 
     <div style="padding:12px 14px;background:var(--bpro);border:1px solid var(--b);border-radius:var(--r10);font-size:11px;color:var(--tp);line-height:1.7">
-      💡 <strong>Pro tip:</strong> Use the <strong>Mewsy</strong> widget in your dashboard sidebar for instant answers about courses, progress, certificates, and platform features — without leaving your learning flow.
+      💡 <strong>Pro tip:</strong> Use the <strong>Help</strong> widget in your dashboard sidebar for instant answers about courses, progress, certificates, and platform features — without leaving your learning flow.
     </div>
   </div>`;
 }
@@ -2220,12 +2276,365 @@ function showXPCelebration(xp,badge){
   setTimeout(()=>{if(overlay.parentNode)overlay.remove();},4500);
 }
 
+function switchPlayerTab(idx){
+  const tabs=document.querySelectorAll('.ptab');
+  tabs.forEach((t,i)=>{t.classList.toggle('ptab-on',i===idx);});
+  const tc=document.getElementById('player-tab-content');if(!tc)return;
+  const TABS=[
+    `<span><strong style="color:var(--tp)">Reservations &amp; Availability</strong> &middot; Front Office Essentials LP &middot; Module 3 of 7</span><div style="display:flex;gap:5px"><span class="pill p-a">SCORM 1.2</span><span class="pill p-gray">22 min</span></div>`,
+    `<div style="width:100%"><textarea style="width:100%;height:60px;font-size:11px;padding:6px 8px;border-radius:var(--r6);border:1px solid var(--b);background:var(--s1);color:var(--tp);resize:none;font-family:inherit;outline:none" placeholder="Your notes for this module…"></textarea></div>`,
+    `<div style="width:100%;min-height:60px"><div style="font-size:10px;color:var(--tm);margin-bottom:8px;display:flex;align-items:center;gap:6px"><span class="ldot"></span><strong>Discourse community thread</strong> &middot; 14 replies</div><div style="display:flex;flex-direction:column;gap:6px">${[['MS','#FFB3E6','Maria Santos','Great explanation of the group folio workflow!'],['JO','#B3D4FF','James Okafor','Can you clarify the rate override step?']].map(([i,bg,n,t])=>'<div style="display:flex;gap:7px;align-items:flex-start"><div style="width:20px;height:20px;border-radius:50%;background:'+bg+';display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:600;flex-shrink:0;color:#0b0b0d">'+i+'</div><div><span style="font-size:10px;font-weight:500;color:var(--tp)">'+n+'</span><span style="font-size:9px;color:var(--tm)"> &middot; 2h ago</span><div style="font-size:10px;color:var(--ts)">'+t+'</div></div></div>').join('')}<div class="minp" style="margin-top:6px"><input class="minp-i" placeholder="Reply in Discourse…"/><button class="minp-btn"><i class="ti ti-send" style="font-size:11px"></i></button></div></div></div>`,
+    `<div style="font-size:10px;color:var(--ts);line-height:1.75;column-count:1"><p><strong>[00:00]</strong> Welcome to module 3 — Creating a new reservation in Mews.</p><p><strong>[01:15]</strong> Navigate to the Timeline view in the left sidebar. Use keyboard shortcut R to open the new reservation panel directly.</p><p><strong>[03:30]</strong> Select the arrival and departure dates by clicking and dragging on the timeline grid.</p><p><strong>[05:45]</strong> Choose the rate plan from the dropdown. The system shows only plans available for the selected dates.</p><p><strong>[08:20]</strong> Complete the guest profile — or search for an existing guest. Mews will auto-fill returning guest details.</p><p style="color:var(--ta)"><strong>[10:00]</strong> <em>AI-generated transcript · Review before publishing</em></p></div>`
+  ];
+  tc.innerHTML=TABS[idx]||TABS[0];
+}
+
+
+function buildCommunity(c){
+  var threads=[
+    {cat:'Front Office',title:'Best way to handle walk-in guests when fully booked?',author:'Maria Santos',ini:'MS',bg:'#FFB3E6',replies:14,views:203,solved:true,time:'2h ago',tags:['front-office','walk-ins']},
+    {cat:'Payments',title:'Group folio split — how do you manage multiple invoices?',author:'James Okafor',ini:'JO',bg:'#B3D4FF',replies:8,views:147,solved:false,time:'5h ago',tags:['payments','groups']},
+    {cat:'Housekeeping',title:'Observation checklist tips for night shift inspections',author:'Priya Kumar',ini:'PK',bg:'#FFD4B3',replies:22,views:318,solved:true,time:'Yesterday',tags:['housekeeping','checklists']},
+    {cat:'Mews platform',title:'How to configure auto-enrollment for new joiners via PMS?',author:'Tomáš Novák',ini:'TN',bg:'#B3FFD4',replies:6,views:89,solved:false,time:'2 days ago',tags:['admin','auto-enroll']},
+    {cat:'Certifications',title:'Certificate expiry — what happens if a learner misses renewal?',author:'Rafa Lopez',ini:'RL',bg:'#D4B3FF',replies:11,views:174,solved:true,time:'3 days ago',tags:['certificates','renewal']},
+  ];
+  var resources=[
+    {icon:'ti-book-2',title:'Mews knowledge base',desc:'Full documentation for every Mews product.'},
+    {icon:'ti-message-circle-2',title:'Community forum',desc:'Ask questions and connect with 5,000+ hotel teams.'},
+    {icon:'ti-calendar-event',title:'Live Q&A sessions',desc:'Weekly sessions with the Global Education team.'},
+    {icon:'ti-brand-slack',title:'#mews-university-help',desc:'Fastest way to reach the GE team.'},
+    {icon:'ti-file-description',title:'Release notes',desc:'What changed in this week\'s update.'},
+    {icon:'ti-trophy',title:'Hall of fame',desc:'Top contributors and most-helpful members.'},
+  ];
+  var catCol={'Front Office':'var(--fp)','Payments':'var(--fa)','Housekeeping':'var(--fs)','Mews platform':'var(--tpro)','Certifications':'var(--fw)'};
+  var tabs=['All','Front Office','Payments','Housekeeping','Mews platform','Certifications'];
+  var filters=['Latest','Most viewed','Unsolved','Solved','My posts'];
+  var contributors=[['MS','#FFB3E6','Maria Santos','42 posts'],['PK','#FFD4B3','Priya Kumar','38 posts'],['JO','#B3D4FF','James Okafor','29 posts']];
+
+  var tabsHtml='';
+  for(var ti=0;ti<tabs.length;ti++){
+    tabsHtml+='<button style="background:none;border:none;cursor:pointer;font-size:10px;font-weight:500;padding:8px 12px;color:'+(ti===0?'var(--ta)':'var(--ts)')+';border-bottom:2px solid '+(ti===0?'var(--fa)':'transparent')+';font-family:inherit;white-space:nowrap">'+tabs[ti]+'</button>';
+  }
+  var filtersHtml='';
+  for(var fi=0;fi<filters.length;fi++){
+    filtersHtml+='<button style="font-size:10px;padding:3px 10px;border-radius:99px;border:1px solid '+(fi===0?'var(--fa)':'var(--b)')+';background:'+(fi===0?'var(--bpro)':'var(--s2)')+';color:'+(fi===0?'var(--ta)':'var(--ts)')+';cursor:pointer">'+filters[fi]+'</button>';
+  }
+  var threadsHtml='';
+  for(var th=0;th<threads.length;th++){
+    var t=threads[th];
+    var tagsH='';
+    for(var tg=0;tg<t.tags.length;tg++){tagsH+='<span style="font-size:9px;padding:1px 7px;border-radius:99px;background:var(--s1);color:var(--tm);border:1px solid var(--b)">#'+t.tags[tg]+'</span>';}
+    threadsHtml+='<div class="card card-hover" style="padding:10px 12px;display:flex;align-items:flex-start;gap:10px;cursor:pointer;margin-bottom:6px">';
+    threadsHtml+='<div class="av av32" style="background:'+t.bg+';color:#0b0b0d;flex-shrink:0">'+t.ini+'</div>';
+    threadsHtml+='<div style="flex:1;min-width:0">';
+    threadsHtml+='<div style="display:flex;align-items:flex-start;gap:6px;margin-bottom:4px"><span style="font-size:9px;font-weight:600;padding:2px 6px;border-radius:99px;background:var(--s1);color:'+(catCol[t.cat]||'var(--ta)')+';border:1px solid var(--b);flex-shrink:0">'+t.cat+'</span>';
+    if(t.solved)threadsHtml+='<span style="font-size:9px;font-weight:600;padding:2px 6px;border-radius:99px;background:var(--bgs);color:var(--tsg);border:1px solid var(--brs);flex-shrink:0">&#10003; Solved</span>';
+    threadsHtml+='</div>';
+    threadsHtml+='<div style="font-size:12px;font-weight:500;color:var(--tp);margin-bottom:4px;line-height:1.35">'+t.title+'</div>';
+    threadsHtml+='<div style="display:flex;align-items:center;gap:10px"><span style="font-size:10px;color:var(--ts)">'+t.author+'</span><span style="font-size:10px;color:var(--tm)">&#183; '+t.time+'</span><span style="font-size:10px;color:var(--tm)">&#183; '+t.replies+' replies</span><span style="font-size:10px;color:var(--tm)">&#183; '+t.views+' views</span></div>';
+    threadsHtml+='<div style="display:flex;gap:4px;margin-top:5px;flex-wrap:wrap">'+tagsH+'</div>';
+    threadsHtml+='</div><i class="ti ti-chevron-right" style="font-size:14px;color:var(--th);flex-shrink:0;margin-top:2px"></i></div>';
+  }
+  var resourcesHtml='';
+  for(var ri=0;ri<resources.length;ri++){
+    var r=resources[ri];
+    resourcesHtml+='<div class="card card-hover" style="padding:9px 10px;display:flex;align-items:flex-start;gap:8px;cursor:pointer;margin-bottom:5px"><i class="ti '+r.icon+'" style="font-size:16px;color:var(--ta);flex-shrink:0;margin-top:1px"></i><div style="min-width:0"><div style="font-size:11px;font-weight:500;color:var(--tp);margin-bottom:1px">'+r.title+'</div><div style="font-size:9px;color:var(--ts);line-height:1.45">'+r.desc+'</div></div></div>';
+  }
+  var contribHtml='';
+  for(var ci=0;ci<contributors.length;ci++){
+    var ct=contributors[ci];
+    contribHtml+='<div style="display:flex;align-items:center;gap:7px;padding:5px 0;border-bottom:1px solid var(--b)"><div class="av" style="width:22px;height:22px;font-size:9px;background:'+ct[1]+';color:#0b0b0d;flex-shrink:0">'+ct[0]+'</div><div style="flex:1;min-width:0"><div style="font-size:10px;font-weight:500;color:var(--tp)">'+ct[2]+'</div><div style="font-size:9px;color:var(--tm)">'+ct[3]+'</div></div><i class="ti ti-rosette-discount-check" style="font-size:14px;color:var(--tpro)"></i></div>';
+  }
+
+  c.innerHTML='<div class="scr">'
+    +'<div style="background:var(--s2);border-bottom:1px solid var(--b);padding:14px;flex-shrink:0">'
+    +'<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">'
+    +'<div><div style="font-size:14px;font-weight:600;color:var(--tp)">Community</div>'
+    +'<div style="font-size:11px;color:var(--ts)">5,240 members &middot; 1,847 discussions &middot; 312 answered this month</div></div>'
+    +'<button class="btn btn-p btn-sm" style="margin-left:auto"><i class="ti ti-plus"></i> New post</button></div>'
+    +'<div class="nl-bar"><i class="ti ti-search" style="font-size:14px;color:var(--tm)"></i>'
+    +'<input class="nl-inp" placeholder="Search discussions, topics, resources\u2026" style="font-size:12px"/></div></div>'
+    +'<div style="display:grid;grid-template-columns:1fr 220px;flex:1;min-height:0;overflow:hidden">'
+    +'<div class="scr" style="border-right:1px solid var(--b)">'
+    +'<div style="display:flex;gap:0;border-bottom:1px solid var(--b);padding:0 14px;flex-shrink:0;background:var(--s2);overflow-x:auto">'+tabsHtml+'</div>'
+    +'<div style="display:flex;gap:6px;padding:10px 14px;border-bottom:1px solid var(--b);flex-shrink:0;background:var(--s1);flex-wrap:wrap">'+filtersHtml+'</div>'
+    +'<div class="scr" style="padding:10px 14px">'+threadsHtml
+    +'<div style="text-align:center;padding:10px 0"><button class="btn btn-s btn-sm">Load more discussions</button></div>'
+    +'</div></div>'
+    +'<div class="scr" style="padding:12px 10px;background:var(--s1)">'
+    +'<div style="font-size:10px;font-weight:600;color:var(--tm);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">Resources</div>'
+    +resourcesHtml
+    +'<div style="font-size:10px;font-weight:600;color:var(--tm);text-transform:uppercase;letter-spacing:.06em;margin-top:10px;margin-bottom:4px">Top contributors</div>'
+    +contribHtml
+    +'<div style="margin-top:10px;padding:8px;background:var(--bpro);border:1px solid var(--b);border-radius:var(--r8)">'
+    +'<div style="font-size:10px;font-weight:600;color:var(--tpro);margin-bottom:3px">Your activity</div>'
+    +'<div style="font-size:10px;color:var(--ts)">3 posts &middot; 7 replies &middot; 2 solutions</div>'
+    +'<div style="font-size:9px;color:var(--tm);margin-top:2px">Community level: <strong style="color:var(--tpro)">Contributor</strong></div>'
+    +'</div></div></div></div>';
+}
+
+function buildSettings(c){
+  const langs=[['en','English'],['es','Español'],['fr','Français'],['de','Deutsch'],['nl','Nederlands']];
+  c.innerHTML=`
+  <div class="scr">
+    <div style="background:linear-gradient(135deg,var(--ba),var(--s2));padding:24px;border-bottom:1px solid var(--b);flex-shrink:0;display:flex;align-items:center;gap:18px">
+      <div style="width:64px;height:64px;border-radius:50%;background:var(--fa);display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:600;color:var(--oa);flex-shrink:0;border:3px solid var(--bra)">AG</div>
+      <div>
+        <div style="font-size:18px;font-weight:600;color:var(--tp)">Angelica García</div>
+        <div style="font-size:11px;color:var(--ts)">Senior LT Specialist · Mews HQ · Level 4 · <span style="color:var(--ta)">1,240 XP</span></div>
+        <div style="display:flex;gap:6px;margin-top:6px">
+          <span class="pill p-p">Super Admin</span>
+          <span class="pill p-a">L&D</span>
+          <span class="pill p-s">🔥 7-day streak</span>
+        </div>
+      </div>
+      <button class="btn btn-s" style="margin-left:auto">Edit photo</button>
+    </div>
+    <div class="pad" style="max-width:680px">
+      <div class="lbl">PROFILE</div>
+      <div class="card" style="overflow:hidden;margin-bottom:16px">
+        <div style="padding:12px 14px;border-bottom:1px solid var(--b);display:grid;grid-template-columns:1fr 1fr;gap:10px">
+          <div class="fgrp"><label>FIRST NAME</label><input class="inp" value="Angelica"/></div>
+          <div class="fgrp"><label>LAST NAME</label><input class="inp" value="García"/></div>
+          <div class="fgrp"><label>EMAIL</label><input class="inp" value="angelica.duenas@mews.com"/></div>
+          <div class="fgrp"><label>ROLE</label><input class="inp" value="Senior LT Specialist" readonly style="background:var(--s1)"/></div>
+          <div class="fgrp"><label>PROPERTY</label><input class="inp" value="Mews HQ" readonly style="background:var(--s1)"/></div>
+          <div class="fgrp"><label>LANGUAGE <span class="ai-tag">UI language</span></label>
+            <select class="inp" onchange="this.style.borderColor='var(--fs)'">
+              ${langs.map(([code,name])=>`<option value="${code}"${code==='en'?' selected':''}>${name}</option>`).join('')}
+            </select>
+          </div>
+        </div>
+        <div style="padding:10px 14px;display:flex;justify-content:flex-end">
+          <button class="btn btn-p" onclick="this.textContent='Saved ✓';this.style.background='var(--fs)'">Save changes</button>
+        </div>
+      </div>
+
+      <div class="lbl">LEARNING PREFERENCES</div>
+      <div class="card card-p" style="margin-bottom:16px">
+        ${[['Daily learning reminder','Get nudged every day at your preferred time',true],['Weekly progress digest','Summary email every Monday morning',true],['Community replies','When someone replies to your Discourse posts',true],['New course alerts','When content matching your role is published',false],['Leaderboard updates','Weekly rank change notification',false]].map(([t,s,on])=>`
+          <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--b)">
+            <div style="flex:1"><div style="font-size:11px;font-weight:500;color:var(--tp)">${t}</div><div style="font-size:10px;color:var(--ts)">${s}</div></div>
+            <button class="tgl ${on?'on':'off'}" onclick="this.classList.toggle('on');this.classList.toggle('off');this.querySelector('.tgl-k').style.left=this.classList.contains('on')?'16px':'2px'"><div class="tgl-k" style="left:${on?16:2}px"></div></button>
+          </div>`).join('')}
+      </div>
+
+      <div class="lbl">ACCOUNT</div>
+      <div class="card card-p" style="margin-bottom:16px">
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--b)">
+          <div><div style="font-size:11px;font-weight:500;color:var(--tp)">Change password</div><div style="font-size:10px;color:var(--ts)">Last changed 3 months ago</div></div>
+          <button class="btn btn-s btn-sm">Change</button>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--b)">
+          <div><div style="font-size:11px;font-weight:500;color:var(--tp)">Download my data</div><div style="font-size:10px;color:var(--ts)">GDPR data export — profile, enrollments, certificates</div></div>
+          <button class="btn btn-s btn-sm"><i class="ti ti-download"></i> Export</button>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0">
+          <div><div style="font-size:11px;font-weight:500;color:var(--tdn)">Delete account</div><div style="font-size:10px;color:var(--ts)">Permanently delete all your learning data</div></div>
+          <button class="btn btn-d btn-sm">Delete</button>
+        </div>
+      </div>
+
+      <div class="lbl">APPEARANCE</div>
+      <div class="card card-p" style="margin-bottom:16px">
+        <div style="display:flex;align-items:center;gap:10px">
+          <span style="font-size:11px;font-weight:500;color:var(--tp);flex:1">Dark mode</span>
+          <button class="tgl ${S.dark?'on':'off'}" id="settings-dark" onclick="toggleDark();this.classList.toggle('on');this.classList.toggle('off');this.querySelector('.tgl-k').style.left=this.classList.contains('on')?'16px':'2px'"><div class="tgl-k" style="left:${S.dark?16:2}px"></div></button>
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+
+function buildManager(c){
+  const team=[
+    {ini:'MS',bg:'#FFB3E6',name:'Maria Santos',role:'Front Office',prog:82,certs:2,due:'14 days',risk:true},
+    {ini:'JO',bg:'#B3D4FF',name:'James Okafor',role:'Front Office',prog:65,certs:1,due:'21 days',risk:false},
+    {ini:'TN',bg:'#B3FFD4',name:'Tomáš Novák',role:'Payments',prog:40,certs:2,due:'30 days',risk:false},
+    {ini:'PK',bg:'#FFD4B3',name:'Priya Kumar',role:'Revenue',prog:91,certs:3,due:'Done',risk:false},
+    {ini:'RL',bg:'#D4B3FF',name:'Rafa Lopez',role:'Front Office',prog:0,certs:1,due:'7 days',risk:true},
+  ];
+  c.innerHTML=`
+  <div class="scr">
+    <div style="padding:14px;border-bottom:1px solid var(--b);background:var(--s2);flex-shrink:0;display:flex;align-items:center;gap:10px">
+      <div><div style="font-size:14px;font-weight:600;color:var(--tp)">My Team</div><div style="font-size:11px;color:var(--ts)">Wanderlust Hotel · Front Office &amp; L&amp;D · 5 members</div></div>
+      <div style="margin-left:auto;display:flex;gap:6px">
+        <button class="btn btn-s btn-sm"><i class="ti ti-download"></i> Export</button>
+        <button class="btn btn-p btn-sm" onclick="go('admin');setTimeout(()=>setAdminSection('risk'),80)"><i class="ti ti-alert-triangle"></i> View at-risk</button>
+      </div>
+    </div>
+    <div class="pad">
+      <div class="g4" style="margin-bottom:16px">
+        ${[['82%','Avg completion','var(--fs)'],['3','Certs expiring','var(--fw)'],['2','At-risk','var(--fd)'],['4.6','Avg score','var(--fa)']].map(([n,l,c])=>`<div class="stat"><div class="stat-n" style="color:${c}">${n}</div><div class="stat-l">${l}</div></div>`).join('')}
+      </div>
+      <div class="lbl">TEAM PROGRESS — Current LP assignments</div>
+      <div class="card" style="overflow:hidden;margin-bottom:16px">
+        ${team.map(m=>`
+          <div style="display:flex;align-items:center;gap:12px;padding:10px 14px;border-bottom:1px solid var(--b)">
+            <div class="av av32" style="background:${m.bg}">${m.ini}</div>
+            <div style="flex:1;min-width:0">
+              <div style="display:flex;align-items:center;gap:6px;margin-bottom:3px">
+                <span style="font-size:12px;font-weight:500;color:var(--tp)">${m.name}</span>
+                ${m.risk?'<span class="pill p-d" style="font-size:8px">At-risk</span>':''}
+              </div>
+              <div style="font-size:10px;color:var(--ts);margin-bottom:5px">${m.role} · ${m.certs} certs · Due: ${m.due}</div>
+              <div style="display:flex;align-items:center;gap:8px">
+                <div class="pbar" style="flex:1"><div class="pbar-f" style="width:${m.prog}%;background:${m.prog>=80?'var(--fs)':m.prog>=50?'var(--fa)':m.prog>0?'var(--fw)':'var(--fd)'}"></div></div>
+                <span style="font-size:10px;font-weight:600;color:var(--ts);flex-shrink:0">${m.prog}%</span>
+              </div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:4px">
+              ${m.risk?`<button class="btn btn-d btn-sm" onclick="this.textContent='Notified ✓'"><i class="ti ti-mail"></i> Notify</button>`:''}
+              <button class="btn btn-s btn-sm"><i class="ti ti-eye"></i> View</button>
+            </div>
+          </div>`).join('')}
+      </div>
+      <div class="lbl">UPCOMING TEAM DEADLINES</div>
+      <div class="card card-p">
+        ${[['Rafa Lopez','Front Office Essentials','7 days','d'],['Maria Santos','Payments Renewal','14 days','w'],['James Okafor','Data Security Re-cert','21 days','s']].map(([n,lp,d,sv])=>`<div style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--b)"><span style="font-size:12px">${sv==='d'?'🔴':sv==='w'?'🟡':'🟢'}</span><div style="flex:1"><div style="font-size:11px;font-weight:500;color:var(--tp)">${n}</div><div style="font-size:10px;color:var(--ts)">${lp}</div></div><span style="font-size:10px;font-weight:600;color:var(--t${sv==='d'?'dn':sv==='w'?'w':'sg'})">${d}</span></div>`).join('')}
+      </div>
+    </div>
+  </div>`;
+}
+
+
+function buildLogin(c){
+  c.innerHTML=`
+  <div style="flex:1;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#0f172a 0%,#1e3a5f 60%,#0f2027 100%);min-height:100%">
+    <div style="background:var(--s2);border-radius:var(--r16);padding:40px 48px;max-width:400px;width:90%;box-shadow:var(--sh3);text-align:center">
+      <div style="width:48px;height:48px;border-radius:var(--r12);background:var(--tp);display:flex;align-items:center;justify-content:center;margin:0 auto 20px">
+        <svg width="20" height="20" viewBox="0 0 14 14" fill="none"><rect x="1" y="1" width="5" height="5" rx="1" fill="white"/><rect x="8" y="1" width="5" height="5" rx="1" fill="white"/><rect x="1" y="8" width="5" height="5" rx="1" fill="white"/><rect x="8" y="8" width="5" height="5" rx="1" fill="white"/></svg>
+      </div>
+      <div style="font-size:20px;font-weight:600;color:var(--tp);margin-bottom:6px">Mews Learning Hub</div>
+      <div style="font-size:12px;color:var(--ts);margin-bottom:28px">Sign in to continue your learning journey</div>
+
+      <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:20px">
+        <button class="btn btn-p" style="width:100%;justify-content:center;font-size:12px;padding:10px" onclick="nav('dash')">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="flex-shrink:0"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z" fill="white"/></svg>
+          Sign in with Mews (Azure AD)
+        </button>
+        <div style="font-size:10px;color:var(--tm);padding:4px 0">— or for partners & hotels —</div>
+        <button class="btn btn-s" style="width:100%;justify-content:center;font-size:12px;padding:10px" onclick="nav('dash')">
+          <i class="ti ti-mail"></i> Sign in with email
+        </button>
+      </div>
+
+      <div style="background:var(--bpro);border-radius:var(--r8);padding:10px 14px;text-align:left;margin-bottom:16px">
+        <div style="font-size:10px;font-weight:600;color:var(--tpro);margin-bottom:4px">✦ Mews employees</div>
+        <div style="font-size:10px;color:var(--ts);line-height:1.6">Click "Sign in with Mews" — your Azure AD session carries over automatically. No second password required.</div>
+      </div>
+
+      <div style="font-size:10px;color:var(--tm)">By signing in you agree to the <a style="color:var(--ta)">Privacy Policy</a> · EU data residency · AES-256</div>
+    </div>
+  </div>`;
+}
+
+
+function buildSpacedRepWidget(){
+  return wacc('spaced','🧠','var(--bpro2)','Spaced Review',`
+    <div class="wacc-inner">
+      <div style="font-size:10px;color:var(--ts);margin-bottom:10px;line-height:1.6">Items due for review based on your forgetting curve. Reviewing now locks the memory in.</div>
+      ${[
+        {topic:'Group folio flow',due:'Overdue 2d',score:62,urgent:true},
+        {topic:'Rate plan selection',due:'Due today',score:78,urgent:true},
+        {topic:'Check-in shortcuts',due:'Due in 2d',score:88,urgent:false},
+      ].map(r=>`<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--b)">
+        <div style="flex:1;min-width:0">
+          <div style="font-size:10px;font-weight:500;color:var(--tp)">${r.topic}</div>
+          <div style="font-size:9px;color:${r.urgent?'var(--tdn)':'var(--tm)'}">${r.due}</div>
+        </div>
+        <div style="font-size:9px;color:var(--ts)">${r.score}%</div>
+        <button class="btn btn-p btn-sm" style="font-size:9px" onclick="mewsyQ('Quiz me on ${r.topic}')">Review</button>
+      </div>`).join('')}
+      <div style="padding-top:8px;font-size:9px;color:var(--tm)">Next review session: tomorrow 08:00</div>
+    </div>
+  `);
+}
+
+
+function buildStatus(c){
+  const comps=[
+    {name:'Learning Hub platform',status:'operational',up:'99.98%',resp:'142ms'},
+    {name:'Course player (SCORM/xAPI)',status:'operational',up:'99.95%',resp:'89ms'},
+    {name:'Learning assistant (AI proxy)',status:'operational',up:'99.91%',resp:'380ms'},
+    {name:'Email delivery (Resend)',status:'degraded',up:'97.2%',resp:'—'},
+    {name:'LRS / xAPI endpoint',status:'operational',up:'100%',resp:'55ms'},
+    {name:'SSO (Azure AD)',status:'operational',up:'99.99%',resp:'68ms'},
+    {name:'CDN (content delivery)',status:'operational',up:'100%',resp:'31ms'},
+    {name:'Discourse community',status:'operational',up:'99.87%',resp:'210ms'},
+  ];
+  const sColor={operational:'var(--fs)',degraded:'var(--fw)',down:'var(--fd)'};
+  const sLabel={operational:'Operational',degraded:'Degraded',down:'Outage'};
+  c.innerHTML=`
+    <div class="scr">
+      <div style="background:var(--bgs);border-bottom:1px solid var(--brs);padding:16px;text-align:center;flex-shrink:0">
+        <div style="font-size:14px;font-weight:600;color:var(--tsg);margin-bottom:3px">✓ All systems operational (7/8)</div>
+        <div style="font-size:10px;color:var(--ts)">Last updated: just now · <a href="#" style="color:var(--ta)">Subscribe to updates</a></div>
+      </div>
+      <div class="pad">
+        <div class="lbl">SYSTEM STATUS</div>
+        <div class="card" style="overflow:hidden;margin-bottom:16px">
+          ${comps.map(comp=>`<div style="display:flex;align-items:center;gap:12px;padding:10px 14px;border-bottom:1px solid var(--b)">
+            <div style="width:10px;height:10px;border-radius:50%;background:${sColor[comp.status]};flex-shrink:0"></div>
+            <div style="flex:1"><div style="font-size:11px;font-weight:500;color:var(--tp)">${comp.name}</div></div>
+            <div style="font-size:10px;color:var(--tm)">${comp.resp!=='—'?comp.resp+' avg':''}</div>
+            <div style="font-size:10px;color:var(--ts);width:38px;text-align:right">${comp.up}</div>
+            <span class="pill ${comp.status==='operational'?'p-s':comp.status==='degraded'?'p-w':'p-d'}">${sLabel[comp.status]}</span>
+          </div>`).join('')}
+        </div>
+        <div class="lbl">RECENT INCIDENTS</div>
+        <div class="card card-p">
+          ${[
+            {date:'Aug 26 11:42','title':'Email delivery latency','body':'Resend API experiencing elevated response times. Email delivery delayed 5–15 min. Being monitored.','status':'Monitoring'},
+            {date:'Aug 20 03:15','title':'LRS maintenance window','body':'Scheduled maintenance completed. All xAPI statements processed successfully.','status':'Resolved'},
+          ].map(i=>`<div style="padding:8px 0;border-bottom:1px solid var(--b)">
+            <div style="display:flex;justify-content:space-between;margin-bottom:3px">
+              <span style="font-size:11px;font-weight:500;color:var(--tp)">${i.title}</span>
+              <span class="pill ${i.status==='Resolved'?'p-s':'p-w'}">${i.status}</span>
+            </div>
+            <div style="font-size:10px;color:var(--ts);margin-bottom:2px">${i.body}</div>
+            <div style="font-size:9px;color:var(--tm)">${i.date}</div>
+          </div>`).join('')}
+        </div>
+      </div>
+    </div>`;
+}
+
+function showOnboardingTour(){
+  const steps=[
+    {icon:'ti-layout-dashboard',title:'Welcome to Mews Learning Hub',body:'Your personal learning space. Track progress, earn certificates, and stay ahead — all from one dashboard.'},
+    {icon:'ti-book-2',title:'Course Catalog',body:'Browse role-curated courses powered by AI. Your LPs are already assigned based on your property and role.'},
+    {icon:'ti-trophy',title:'Achievements & Gamification',body:'Earn XP, unlock badges, and climb the leaderboard. Every module you complete moves you closer to Level 5.'},
+    {icon:'ti-robot',title:'Meet your learning assistant',body:'Your built-in learning assistant. Ask anything — "What should I do next?", "Where is my certificate?", "How do I publish a course?" — and get an instant answer.'},
+  ];
+  let step=0;
+  const overlay=document.createElement('div');
+  overlay.id='tour-overlay';
+  overlay.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9990;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(2px)';
+  window._tourStep=0;window._tourSteps=steps;window._tourOverlay=overlay;
+  window.tourNext=function(){window._tourStep++;if(window._tourStep>=window._tourSteps.length){window._tourOverlay.remove();return;}tourRender();}
+  window.tourBack=function(){window._tourStep=Math.max(0,window._tourStep-1);tourRender();}
+  window.tourSkip=function(){window._tourOverlay.remove();}
+  window.tourRender=function(){
+    const step=window._tourStep,steps=window._tourSteps,ov=window._tourOverlay,s=steps[step];
+    const dots=steps.map((_,i)=>'<div style="width:8px;height:8px;border-radius:50%;background:'+(i===step?'var(--fa)':'var(--bs)')+'"></div>').join('');
+    ov.innerHTML='<div style="background:var(--s2);border-radius:var(--r16);padding:36px 40px;max-width:380px;width:90%;text-align:center;box-shadow:var(--sh3);position:relative"><div style="position:absolute;top:14px;right:14px;font-size:10px;color:var(--tm)">'+(step+1)+' / '+steps.length+'</div><div style="width:56px;height:56px;border-radius:var(--r12);background:var(--ba);display:flex;align-items:center;justify-content:center;margin:0 auto 16px"><i class="ti '+s.icon+'" style="font-size:26px;color:var(--ta)"></i></div><div style="font-size:17px;font-weight:600;color:var(--tp);margin-bottom:10px">'+s.title+'</div><div style="font-size:12px;color:var(--ts);line-height:1.7;margin-bottom:24px">'+s.body+'</div><div style="display:flex;gap:6px;justify-content:center;margin-bottom:18px">'+dots+'</div><div style="display:flex;gap:8px;justify-content:center">'+(step>0?'<button class="btn btn-s" onclick="tourBack()">&#8592; Back</button>':'')+'<button class="btn btn-p" onclick="tourNext()" style="min-width:100px">'+(step<steps.length-1?'Next &#8594;':'Get started &#128640;')+'</button><button class="btn btn-g" onclick="tourSkip()" style="font-size:9px">Skip tour</button></div></div>';
+  }
+  tourRender();
+  document.body.appendChild(overlay);
+}
+
 function boot(){
   // Show notification badges
   el('notif-badge').style.display=S.notifCount>0?'block':'none';
   el('tb-notif-badge').style.display=S.notifCount>0?'block':'none';
   // Initial screen
   nav('dash');
+  // Show onboarding tour after a short delay
+  if(!sessionStorage.getItem('tour_done')){
+    setTimeout(()=>showOnboardingTour(),600);
+    sessionStorage.setItem('tour_done','1');
+  }
   // Open first widget by default
   setTimeout(()=>{
     toggleWidget('mewsy');
