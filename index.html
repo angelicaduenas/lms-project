@@ -719,15 +719,9 @@ const TITLES = {
   lb:'Leaderboard', live:'Live Sessions', notif:'Notifications',
   admin:'Admin', help:'Help & FAQ'
 };
-const BUILDERS = {
-  dash:buildDash, catalog:buildCatalog, playlist:buildPlaylist,
-  player:buildPlayer, mylearn:buildMylearn, gamif:buildGamif,
-  lb:buildLB, live:buildLive, notif:buildNotif,
-  admin:buildAdmin, help:buildHelp
-};
-
 function nav(id){
-  if(!BUILDERS[id])return;
+  const B={dash:buildDash,catalog:buildCatalog,playlist:buildPlaylist,player:buildPlayer,mylearn:buildMylearn,gamif:buildGamif,lb:buildLB,live:buildLive,notif:buildNotif,admin:buildAdmin,help:buildHelp};
+  if(!B[id])return;
   S.screen=id;
   qsa('.snb').forEach(b=>b.classList.remove('on'));
   const btn=el('sn-'+id);if(btn)btn.classList.add('on');
@@ -736,7 +730,7 @@ function nav(id){
   sc.innerHTML='';
   sc.style.display='flex';
   sc.style.flexDirection='column';
-  BUILDERS[id](sc);
+  B[id](sc);
 }
 
 function globalSearch(q){
