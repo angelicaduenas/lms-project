@@ -852,27 +852,44 @@ const NL_ANSWERS = {
 };
 
 /* ── MEWSY AI ── */
-const MEWSY_RESPONSES = {
-  'what next': 'Finish **Reservations & Availability** — you\'re 72% through and it\'s the fastest path to your Front Office Pro badge (+150 XP). After that, Payments & Billing to close the gap to Level 5.',
-  'progress': `Level 4 · 1,240 XP · 260 XP to Level 5. 🔥 7-day streak (best: 12). You\'re #6 on the leaderboard — 2 completions away from overtaking Priya at #4.`,
-  'publish': 'Admin → Publisher → "From link" or "Upload ZIP". Drop your Evolve export and Claude auto-generates title, description, level and tags from the SCORM manifest. Takes ~30 seconds.',
-  'badge': '4 earned: 🏆 Front Office Pro (silver) · ⭐ Mews Basics (gold) · ⚡ Quick Learner (bronze) · 🔥 7-day streak (bronze). Next up: Payments Expert — finish the Payments & Billing course.',
-  'certificate': '2 active: **Front Office Pro** (expires Jan 2027) · **Mews Basics** (expires Oct 2026). ⚠️ Data Security Skills expires in 12 days — renewal required.',
-  'how to': 'For step-by-step guides, check Help & FAQ (? icon in the sidebar). You can also ask me anything about courses, progress, or platform features.',
-  'streak': `You\'re on a 🔥 7-day streak. Log in and complete at least 1 module tomorrow to keep it going. Your best was 12 consecutive days.`,
-  'level': 'You\'re Level 4 (Specialist) with 1,240 XP. Level 5 (Expert) requires 1,500 XP — 260 more. Complete Reservations & Availability (+100 XP course + ~50 XP modules) to hit it this week.',
+const HELP_RESPONSES = {
+  'what next': 'Your next step is module 4 of Front Office Essentials — Rate plans and pricing logic (9 min). You are 72% through the LP and this unlocks the Front Office Pro badge (+150 XP). After that: Payments and Billing to reach Level 5.',
+  'today': 'Today you have: 1 module overdue (Rate plans, due in 7 days), 1 certificate expiring in 12 days (Data Security Skills), and 3 spaced review items. Start with the overdue module — it takes 9 minutes.',
+  'progress': 'Level 4 Specialist · 1,240 XP · 260 XP to Level 5. 7-day streak (best: 12 days). You are #6 on the leaderboard — 2 completions away from overtaking Priya at #4.',
+  'certificate': '2 active certificates: Front Office Pro (expires Jan 2027) and Mews Basics (expires Oct 2026). Data Security Skills expires in 12 days — renewal is mandatory. Open My Learning → Certificates to download PDFs.',
+  'badge': '4 badges earned: Front Office Pro (silver), Mews Basics (gold), Quick Learner (bronze), 7-day streak (bronze). Next: Payments Expert — finish the Payments and Billing course.',
+  'level': 'You are Level 4 (Specialist), 1,240 XP. Level 5 (Expert) needs 1,500 XP — 260 more. Completing Reservations and Availability gives you +100 XP course bonus plus ~50 XP per module.',
+  'streak': '7-day streak active. Complete at least 1 module tomorrow to keep it going. Your personal best is 12 days.',
+  'front office': 'Front Office courses available: Reservations and Availability (72% done), Rate plans and pricing logic (locked — complete module 3 first), Check-in and check-out flow, Group bookings. Open the Catalog and filter by Front Office.',
+  'payments': 'Payments courses: Payments and Billing (enrolled, 0% done), Deposit management, Billing automation. Your skill gap in Payment reconciliation is currently 20 points below the required level for your role.',
+  'housekeeping': 'Housekeeping courses: HK Standards (new), Observation checklist guide, Linen and inventory management. Your manager has 2 pending observation checklists waiting for sign-off.',
+  'certification': '3 certifications available for your role: Front Office Pro (active), Data Security Skills (renewing in 12 days), Mews Basics (active). Each expires annually. Open My Learning → Certificates.',
+  'community': 'The Community has 1,847 discussions across 5 categories. Most active this week: Group folio split thread (8 replies) and Walk-in guests when fully booked (14 replies, solved). Open Community from the sidebar.',
+  'team': 'Your team: 2 members at risk (Rafa Lopez — 0% with 7 days left, James Okafor — 0% with 21 days left). Open Manager View to send deadline reminders in one click.',
+  'publish': 'Admin → Publisher → Upload ZIP or paste an Evolve preview URL. The assistant reads the SCORM manifest and fills in title, description, level, and tags automatically. Review and publish in under 5 minutes.',
+  'report': 'Open Admin → Reports and type your question in plain English. For example: "Who has not completed Front Office Essentials this quarter?" Results appear in 2 seconds with a CSV export option.',
+  'skill': 'Your skill snapshot: Rate plans 48% (need 75%), Group bookings 30% (need 60%), Data security 90% (met). Open My Learning → Skill Map for the full gap analysis.',
+  'default': 'I can help with your courses, progress, certificates, team status, skill gaps, or admin tasks. Choose a topic above or type your question.',
 };
 
 function getMewsyResponse(q){
   const l=q.toLowerCase();
-  const k=Object.keys(MEWSY_RESPONSES).find(k=>k.split(' ').every(w=>l.includes(w)));
-  if(k)return MEWSY_RESPONSES[k];
-  if(l.includes('certif'))return MEWSY_RESPONSES['certificate'];
-  if(l.includes('badg'))return MEWSY_RESPONSES['badge'];
-  if(l.includes('publish')||l.includes('evolve'))return MEWSY_RESPONSES['publish'];
-  if(l.includes('xp')||l.includes('level'))return MEWSY_RESPONSES['level'];
-  if(l.includes('streak'))return MEWSY_RESPONSES['streak'];
-  return 'I can help with course recommendations, your progress, certificates, badges, or how to publish from Evolve. What would you like to know?';
+  if(l.includes('today')||l.includes('now')||l.includes('hoy'))return HELP_RESPONSES['today'];
+  if(l.includes('what next')||l.includes('next')||l.includes('siguiente'))return HELP_RESPONSES['what next'];
+  if(l.includes('team')||l.includes('equipo')||l.includes('manager'))return HELP_RESPONSES['team'];
+  if(l.includes('skill')||l.includes('gap')||l.includes('competencia'))return HELP_RESPONSES['skill'];
+  if(l.includes('front office')||l.includes('check-in')||l.includes('reservation'))return HELP_RESPONSES['front office'];
+  if(l.includes('payment')||l.includes('billing')||l.includes('pago'))return HELP_RESPONSES['payments'];
+  if(l.includes('housekeep')||l.includes('hk')||l.includes('cleaning'))return HELP_RESPONSES['housekeeping'];
+  if(l.includes('certif'))return HELP_RESPONSES['certification'];
+  if(l.includes('badg'))return HELP_RESPONSES['badge'];
+  if(l.includes('publish')||l.includes('evolve')||l.includes('scorm'))return HELP_RESPONSES['publish'];
+  if(l.includes('report')||l.includes('analyt'))return HELP_RESPONSES['report'];
+  if(l.includes('community')||l.includes('forum'))return HELP_RESPONSES['community'];
+  if(l.includes('progress')||l.includes('progreso'))return HELP_RESPONSES['progress'];
+  if(l.includes('streak'))return HELP_RESPONSES['streak'];
+  if(l.includes('level')||l.includes('xp'))return HELP_RESPONSES['level'];
+  return HELP_RESPONSES['default'];
 }
 </script>
 <script>
@@ -1009,22 +1026,47 @@ function toggleWidget(id){
 }
 
 function buildMewsyWidget(){
-  return wacc('mewsy','🤖','rgba(255,131,218,.15)','Help',`
-    <div class="wacc-inner">
-      <div class="chat" id="mewsy-chat" style="max-height:110px;overflow-y:auto;margin-bottom:6px">
-        <div class="cb bot"><div class="bub">Hi Angelica! Ask about courses, progress, or publishing from Evolve.</div></div>
-      </div>
-      <div style="display:flex;gap:3px;flex-wrap:wrap;margin-bottom:6px">
-        ${['What next?','My progress','Badges','Certificates'].map(q=>`<button style="font-size:8px;padding:2px 7px;border-radius:var(--rfull);border:1px solid var(--b);background:var(--s1);color:var(--ts);cursor:pointer;transition:var(--tr)" onmouseover="this.style.background='var(--ba)';this.style.borderColor='var(--fa)'" onmouseout="this.style.background='var(--s1)';this.style.borderColor='var(--b)'" onclick="mewsyChat('${q}')">${q}</button>`).join('')}
-      </div>
-      <div class="minp">
-        <input class="minp-i" id="mewsy-inp" placeholder="Ask the assistant…" onkeydown="if(event.key==='Enter')mewsySend()"/>
-        <button class="minp-btn" onclick="mewsySend()"><i class="ti ti-send" style="font-size:11px"></i></button>
-      </div>
-    </div>
-  `);
+  var cats=[
+    {ic:'ti-clock',lb:'What do I need today?',q:'today'},
+    {ic:'ti-arrow-right',lb:'What next?',q:'what next'},
+    {ic:'ti-chart-bar',lb:'My progress',q:'progress'},
+    {ic:'ti-certificate',lb:'My certificates',q:'certificate'},
+    {ic:'ti-users',lb:'My team',q:'team'},
+    {ic:'ti-trending-up',lb:'My skill gaps',q:'skill'},
+  ];
+  var topics=[
+    {ic:'ti-building',lb:'Front Office',q:'front office'},
+    {ic:'ti-credit-card',lb:'Payments',q:'payments'},
+    {ic:'ti-home',lb:'Housekeeping',q:'housekeeping'},
+    {ic:'ti-upload',lb:'Publish a course',q:'publish'},
+    {ic:'ti-chart-bar',lb:'Reports',q:'report'},
+    {ic:'ti-users-group',lb:'Community',q:'community'},
+  ];
+  var btnStyle='display:flex;align-items:center;gap:4px;font-size:9px;padding:3px 8px;border-radius:99px;border:1px solid var(--b);background:var(--s1);color:var(--ts);cursor:pointer;white-space:nowrap';
+  var btn2Style='display:flex;align-items:center;gap:4px;font-size:9px;padding:3px 8px;border-radius:99px;border:1px solid var(--b);background:var(--s2);color:var(--ts);cursor:pointer;white-space:nowrap';
+  var cH='',tH='';
+  for(var i=0;i<cats.length;i++){
+    var q=cats[i].q.replace(/'/g,"\\'");
+    cH+='<button style="'+btnStyle+'" onclick="mewsyChat(\''+q+'\')"><i class="ti '+cats[i].ic+'" style="font-size:10px;margin-right:2px" aria-hidden="true"></i>'+cats[i].lb+'</button>';
+  }
+  for(var j=0;j<topics.length;j++){
+    var tq=topics[j].q.replace(/'/g,"\\'");
+    tH+='<button style="'+btn2Style+'" onclick="mewsyChat(\''+tq+'\')"><i class="ti '+topics[j].ic+'" style="font-size:10px;margin-right:2px" aria-hidden="true"></i>'+topics[j].lb+'</button>';
+  }
+  var body='<div class="wacc-inner">'
+    +'<div class="chat" id="mewsy-chat" style="max-height:90px;overflow-y:auto;margin-bottom:6px">'
+    +'<div class="cb bot"><div class="bub">Hi Angelica \u2014 what do you need today?</div></div>'
+    +'</div>'
+    +'<div style="font-size:9px;color:var(--tm);font-weight:500;margin-bottom:3px">YOUR ACTIVITY</div>'
+    +'<div style="display:flex;gap:3px;flex-wrap:wrap;margin-bottom:7px">'+cH+'</div>'
+    +'<div style="font-size:9px;color:var(--tm);font-weight:500;margin-bottom:3px">BROWSE BY TOPIC</div>'
+    +'<div style="display:flex;gap:3px;flex-wrap:wrap;margin-bottom:6px">'+tH+'</div>'
+    +'<div class="minp">'
+    +'<input class="minp-i" id="mewsy-inp" placeholder="Ask anything\u2026" onkeydown="if(event.key===\'Enter\')mewsySend()"/>'
+    +'<button class="minp-btn" onclick="mewsySend()"><i class="ti ti-send" style="font-size:11px"></i></button>'
+    +'</div></div>';
+  return wacc('mewsy','\uD83E\uDD16','rgba(255,131,218,.15)','Help',body);
 }
-
 function mewsyChat(q){
   const chat=el('mewsy-chat');if(!chat)return;
   chat.innerHTML+=`<div class="cb usr"><div class="bub">${q}</div></div>`;
